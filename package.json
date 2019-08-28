@@ -1,0 +1,31 @@
+{
+  "name": "node-webauthn",
+  "version": "0.0.1",
+  "description": "Simple module to manage W3C WebAuthn standard",
+  "main": "index.js",
+  "scripts": {
+    "build": "tsc"
+  },
+  "keywords": [
+    "W3C",
+    "WebAuthn",
+    "authentication",
+    "fido2",
+    "ctap"
+  ],
+  "author": "Romain Viau",
+  "license": "ISC",
+  "dependencies": {
+    "@fidm/x509": "^1.2.1",
+    "base64url": "^3.0.1",
+    "cbor": "^4.3.0",
+    "i18n-iso-countries": "^4.3.1"
+  },
+  "devDependencies": {
+    "@types/cbor": "^2.0.0",
+    "@types/node": "^12.7.2",
+    "ts": "^0.2.2",
+    "typescript": "^3.5.3",
+    "typings": "^2.1.1"
+  }
+}
