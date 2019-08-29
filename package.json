@@ -4,6 +4,7 @@
   "description": "Simple module to manage W3C WebAuthn standard",
   "main": "index.js",
   "scripts": {
+    "test": "jest --silent",
     "build": "tsc"
   },
   "keywords": [

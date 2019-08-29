@@ -6,7 +6,7 @@ import { AuthenticatorFormat } from "./authenticatorInfo"
 interface AttestationStatement {
   alg: number
   sig: Buffer
-  x5c?: Buffer
+  x5c?: Array<Buffer>
   ecdaaKeyId?: Buffer
 }
 

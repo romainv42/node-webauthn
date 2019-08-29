@@ -7,7 +7,7 @@ import * as iso from "i18n-iso-countries"
 import { AuthenticatorInfo, AuthenticatorFormat } from "../types/authenticatorInfo"
 import { AttestationObject } from "../types/attestationObject";
 
-import { ASN1toPEM, verifySignature } from "../utils"
+import { ASN1toPEM, verifySignature, convertCOSEKey } from "../utils"
 
 const U2F_USER_PRESENTED = 0x01;
 
@@ -31,15 +31,7 @@ export class AuthenticatorAttestionResponse {
     this.response = response
   }
 
-  private convertCOSEKey(pubKey: Buffer): Buffer {
-    const coseStruct = cbor.decodeAllSync(pubKey)[0]
-    const tag = Buffer.from([0x04]);
-    const x = coseStruct.get(-2);
-    const y = coseStruct.get(-3);
-
-    return Buffer.concat([tag, x, y])
-
-  }
+  
 
   private hash(clear: Buffer): Buffer {
     return crypto.createHash("SHA256").update(clear).digest()
@@ -53,12 +45,12 @@ export class AuthenticatorAttestionResponse {
     if (!(attObj.authData.flags & U2F_USER_PRESENTED))
       throw new Error('User was NOT presented durring authentication!')
 
-    if (!attObj.attStmt.x5c)
+    if (!attObj.attStmt.x5c || attObj.attStmt.x5c.length === 0)
       throw new Error('Missing certificates x5C')
 
     const clientDataHash = this.hash(base64url.toBuffer(this.response.clientDataJSON))
-    const publicKey = this.convertCOSEKey(attObj.authData.COSEPublicKey)
-    const PEMCertificate = ASN1toPEM(attObj.attStmt.x5c!)
+    const publicKey = convertCOSEKey(attObj.authData.COSEPublicKey)
+    const PEMCertificate = ASN1toPEM(attObj.attStmt.x5c![0])
 
     let signatureBase: Buffer;
     if (attObj.fmt === AuthenticatorFormat.FIDO_U2F) {
@@ -86,9 +78,9 @@ export class AuthenticatorAttestionResponse {
         pem.subject.organizationalUnitName === "Authenticator Attestation" &&
         pem.subject.commonName &&
         !pem.isCA
-          )) {
-            return response
-          }
+      )) {
+        return response
+      }
     } else {
       throw new Error('Unsupported attestation format! ' + attObj.fmt)
     }
