@@ -33,7 +33,6 @@ export class PublicKeyCreateCredentialOptions {
     authenticatorSelection?: AuthenticatorSelectionCriteria,
     excludeCredentials?: Array<PubKeyCredDescriptor>,
   ) {
-
     this.challenge = crypto.randomBytes(32)
     this.rp = rp
     this.user = user
