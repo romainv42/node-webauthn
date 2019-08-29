@@ -28,10 +28,10 @@ export function ASN1toPEM(buffer: Buffer): string {
   return `-----BEGIN ${type}-----\n${buffer.toString("base64").replace(/.{1,64}/g, '$&\n')}-----END ${type}-----\n`;
 }
 
-export function verifySignature (signature: Buffer, data: Buffer, publicKey: string) {
+export function verifySignature(signature: Buffer, data: Buffer, publicKey: string) {
   return crypto.createVerify('SHA256')
-      .update(data)
-      .verify(publicKey, signature);
+    .update(data)
+    .verify(publicKey, signature);
 }
 
 export function convertCOSEKey(pubKey: Buffer): Buffer {
@@ -42,3 +42,8 @@ export function convertCOSEKey(pubKey: Buffer): Buffer {
 
   return Buffer.concat([tag, x, y])
 }
+
+export function hash(clear: Buffer): Buffer {
+  return crypto.createHash("SHA256").update(clear).digest()
+}
+

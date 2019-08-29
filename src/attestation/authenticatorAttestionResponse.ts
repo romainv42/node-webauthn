@@ -7,18 +7,14 @@ import * as iso from "i18n-iso-countries"
 import { AuthenticatorInfo, AuthenticatorFormat } from "../types/authenticatorInfo"
 import { AttestationObject } from "../types/attestationObject";
 
-import { ASN1toPEM, verifySignature, convertCOSEKey } from "../utils"
+import { ASN1toPEM, verifySignature, convertCOSEKey, hash } from "../utils"
+import { VerifyResponse } from "../types/verifyResponse";
 
 const U2F_USER_PRESENTED = 0x01;
 
 interface WebAuthnAttestationResponse {
   attestationObject: string
   clientDataJSON: string
-}
-
-export class VerifyAttestionResponse {
-  verified: boolean = false
-  authrInfo?: AuthenticatorInfo
 }
 
 export class AuthenticatorAttestionResponse {
@@ -31,16 +27,10 @@ export class AuthenticatorAttestionResponse {
     this.response = response
   }
 
-  
-
-  private hash(clear: Buffer): Buffer {
-    return crypto.createHash("SHA256").update(clear).digest()
-  }
-
-  verify(): VerifyAttestionResponse {
+  verify(): VerifyResponse {
     const attObj = new AttestationObject(this.response.attestationObject)
 
-    const response = new VerifyAttestionResponse()
+    const response = new VerifyResponse()
 
     if (!(attObj.authData.flags & U2F_USER_PRESENTED))
       throw new Error('User was NOT presented durring authentication!')
@@ -48,7 +38,7 @@ export class AuthenticatorAttestionResponse {
     if (!attObj.attStmt.x5c || attObj.attStmt.x5c.length === 0)
       throw new Error('Missing certificates x5C')
 
-    const clientDataHash = this.hash(base64url.toBuffer(this.response.clientDataJSON))
+    const clientDataHash = hash(base64url.toBuffer(this.response.clientDataJSON))
     const publicKey = convertCOSEKey(attObj.authData.COSEPublicKey)
     const PEMCertificate = ASN1toPEM(attObj.attStmt.x5c![0])
 
